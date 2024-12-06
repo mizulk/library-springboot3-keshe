@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.mizulk.library.mapper.BookMapper">
+	<cache/>
+
+	<resultMap id="Book" type="pers.mizulk.library.pojo.Book">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="publisher" column="publisher"/>
+		<result property="brief" column="brief"/>
+		<result property="comments" column="comments"/>
+		<result property="collect" column="collect"/>
+		<result property="likes" column="likes"/>
+		<result property="type" column="type"/>
+		<result property="img" column="img"/>
+		<result property="views" column="views"/>
+		<result property="share" column="share"/>
+		<result property="price" column="price"/>
+
+		<association property="author" column="authorId" javaType="pers.mizulk.library.pojo.Author">
+			<id property="id" column="userId"/>
+			<result property="name" column="author"/>
+		</association>
+	</resultMap>
+
+	<sql id="selectBook">
+		SELECT b.id,
+		       b.author,
+		       b.publisher,
+		       b.brief,
+		       b.collect,
+		       b.comments,
+		       b.likes,
+		       b.type,
+		       b.views,
+		       b.`name`,
+		       b.`share`,
+		       b.price,
+		       CONCAT('http://localhost:8080/images/books/', b.img) AS img,
+		       a.id                                                 AS userId
+		FROM books as b
+			     LEFT JOIN `authors` AS a ON b.author = a.`name`
+	</sql>
+
+	<update id="updateBook">
+		UPDATE bookdata
+		<set>
+			<if test="name != null">
+				name = #{name},
+			</if>
+			<if test="author != null and author.name != null">
+				author = #{author.name},
+			</if>
+			<if test="publisher != null">
+				publisher = #{publisher},
+			</if>
+			<if test="brief != null">
+				brief = #{brief},
+			</if>
+			<if test="comments != null">
+				comments = #{comments},
+			</if>
+			<if test="collect != null">
+				collect = #{collect},
+			</if>
+			<if test="likes != null">
+				likes = #{likes},
+			</if>
+			<if test="type != null">
+				`type` = #{type},
+			</if>
+			<if test="img != null">
+				img = #{img},
+			</if>
+			<if test="views != null">
+				views = #{views},
+			</if>
+			<if test="share != null">
+				`share` = #{share},
+			</if>
+			<if test="price != null">
+				price = #{price},
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<select id="selectBooks" resultType="pers.mizulk.library.pojo.Book" resultMap="Book">
+		<include refid="selectBook"/>
+		<where>
+			<if test="book != null">
+				<if test="book.type != null">
+					AND b.`type` = #{book.type}
+				</if>
+				<if test="book.author != null and book.author.name != null">
+					AND b.author = #{book.author.name}
+				</if>
+				<if test="book.name != null">
+					AND b.`name` LIKE CONCAT('%', #{book.name}, '%')
+				</if>
+			</if>
+			<if test="ids != null">
+				AND b.id IN
+				<foreach collection="ids" item="id" open="(" close=")" separator=",">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+		<if test="limit != null">
+			LIMIT #{limit};
+		</if>
+	</select>
+
+	<select id="selectBookById" resultType="pers.mizulk.library.pojo.Book" resultMap="Book">
+		<include refid="selectBook"/>
+		WHERE b.id = #{id}
+	</select>
+</mapper>

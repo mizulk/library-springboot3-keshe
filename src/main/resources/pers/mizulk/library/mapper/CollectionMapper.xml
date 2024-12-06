@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.mizulk.library.mapper.CollectionMapper">
+	<resultMap id="Collection" type="pers.mizulk.library.pojo.Collection">
+		<id property="id" column="id"/>
+		<result property="userId" column="userId"/>
+		<association property="book" column="bookId" resultMap="CollectionBook"/>
+	</resultMap>
+
+	<resultMap id="CollectionBook" type="pers.mizulk.library.pojo.Book">
+		<id property="id" column="bookId"/>
+		<result property="name" column="name"/>
+		<result property="publisher" column="publisher"/>
+		<result property="price" column="price"/>
+		<result property="views" column="views"/>
+		<result property="img" column="img"/>
+		<association property="author" column="authorId" javaType="pers.mizulk.library.pojo.Author">
+			<id property="id" column="authorId"/>
+			<result property="name" column="author"/>
+		</association>
+	</resultMap>
+
+	<sql id="selectCollection">
+		SELECT c.id,
+		       c.userId,
+		       c.bookId,
+		       b.`name`,
+		       b.publisher,
+		       b.price,
+		       b.views,
+		       CONCAT('http://localhost:8080/images/books/', b.img) AS img,
+		       b.author,
+		       a.id                                                 AS authorId
+		FROM collections AS c
+			     INNER JOIN bookdata AS b
+			                ON b.id = c.bookId
+			     LEFT JOIN `authors` AS a
+			               ON b.author = a.`name`
+	</sql>
+
+	<update id="updateCollection">
+		UPDATE collections
+		<set>
+			<if test="userId != null">
+				userId = #{userId},
+			</if>
+			<if test="book != null and book.id != null">
+				bookId = #{book.id}
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<delete id="deleteCollections">
+		DELETE FROM collections WHERE id IN
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="selectCollection" resultType="pers.mizulk.library.pojo.Collection" resultMap="Collection">
+		<include refid="selectCollection"/>
+		<where>
+			<if test="userId != null" >
+				c.userId = #{userId}
+			</if>
+			<if test="book != null and book.id != null">
+				AND c.bookId = #{book.id}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

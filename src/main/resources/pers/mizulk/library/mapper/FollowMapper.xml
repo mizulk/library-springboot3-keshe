@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.mizulk.library.mapper.FollowMapper">
+	<resultMap id="Follow" type="pers.mizulk.library.pojo.Follow">
+		<id property="id" column="id"/>
+		<result property="userId" column="userId"/>
+
+		<association property="author" column="authorId" javaType="pers.mizulk.library.pojo.Author">
+			<id property="id" column="authorId"/>
+			<result property="img" column="img"/>
+			<result property="name" column="name"/>
+			<result property="brief" column="brief"/>
+		</association>
+	</resultMap>
+
+	<sql id="selectFollow">
+		SELECT f.id,
+		       f.userId,
+		       f.authorId,
+		       a.`name`,
+		       a.brief,
+		       CONCAT('http://localhost:808/images/authors/', a.img) AS img
+		FROM `follow` AS f
+			     INNER JOIN `authors` AS a
+			                ON f.authorId = a.id
+	</sql>
+
+	<delete id="deleteFollows">
+		DELETE FROM follow
+		<where>
+			<if test="id != null">
+				id = #{id}
+			</if>
+			<if test="userId != null">
+				AND userId = #{userId}
+			</if>
+			<if test="authorId != null">
+				AND authorId = #{authorId}
+			</if>
+		</where>
+	</delete>
+
+	<select id="selectFollow" resultType="pers.mizulk.library.pojo.Follow" resultMap="Follow">
+		<include refid="selectFollow"/>
+		<where>
+			<if test="userId != null">
+				f.userId = #{userId}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

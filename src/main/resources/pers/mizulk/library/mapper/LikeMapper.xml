@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.mizulk.library.mapper.LikeMapper">
+
+	<select id="selectLike" resultType="pers.mizulk.library.pojo.Like">
+		SELECT id, userId, bookId FROM likes
+		<where>
+			<if test="id != null">
+				id = #{id}
+			</if>
+			<if test="userId != null">
+				AND userId = #{userId}
+			</if>
+			<if test="bookId != null">
+				AND bookId = #{bookId}
+			</if>
+		</where>
+	</select>
+</mapper>

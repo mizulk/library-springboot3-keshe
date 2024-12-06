@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.mizulk.library.mapper.AuthorMapper">
+
+	<sql id="selectAuthor">
+		SELECT id,
+		       name,
+		       brief,
+		       CONCAT('http://localhost:8080/images/authors/', img) as img
+		FROM authors
+	</sql>
+
+	<select id="selectAuthor" resultType="pers.mizulk.library.pojo.Author">
+		<include refid="selectAuthor"/>
+		<where>
+			<if test="ids != null">
+				id IN
+				<foreach collection="ids" open="(" close=")" separator="," item="id">
+					#{id}
+				</foreach>
+			</if>
+			<if test="name != null">
+				AND `name` LIKE CONCAT('%', #{name} '%')
+			</if>
+		</where>
+		<if test="limit != null">
+			limit #{limit}
+		</if>
+	</select>
+
+	<select id="selectAuthorById" resultType="pers.mizulk.library.pojo.Author">
+		<include refid="selectAuthor"/>
+		WHERE id = #{id}
+	</select>
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.mizulk.library.mapper.CartMapper">
+
+	<resultMap id="Cart" type="pers.mizulk.library.pojo.Cart">
+		<id property="id" column="id"/>
+		<result property="userId" column="userId"/>
+		<result property="count" column="count"/>
+		<result property="checked" column="checked"/>
+		<result property="createTime" column="createTime"/>
+		<result property="updateTime" column="updateTime"/>
+
+		<association property="book" column="bookId"
+		             resultMap="CartBook"/>
+	</resultMap>
+
+	<resultMap id="CartBook" type="pers.mizulk.library.pojo.Book">
+		<result property="id" column="bookId"/>
+		<result property="name" column="name"/>
+		<result property="publisher" column="publisher"/>
+		<result property="price" column="price"/>
+		<result property="img" column="img"/>
+		<association property="author" column="authorId" javaType="pers.mizulk.library.pojo.Author">
+			<id property="id" column="userId"/>
+			<result property="name" column="author"/>
+		</association>
+	</resultMap>
+
+	<sql id="selectCart">
+		SELECT c.id,
+		       c.bookId,
+		       c.userId,
+		       c.count,
+		       c.checked,
+		       c.createTime,
+		       c.updateTime,
+		       b.author,
+		       a.id                                                 AS authorId,
+		       b.`name`,
+		       b.publisher,
+		       b.price,
+		       CONCAT('http://localhost:8080/images/books/', b.img) AS img
+		FROM `carts` AS c
+			     LEFT JOIN bookdata AS b
+			               ON c.bookId = b.id
+			     LEFT JOIN `authors` AS a
+			               ON a.`name` = b.author
+	</sql>
+
+	<update id="updateCart">
+		UPDATE carts
+		<set>
+			<if test="userId != null">
+				userId = #{userId},
+			</if>
+			<if test="book != null and book.id != null">
+				bookId = #{book.id},
+			</if>
+			<if test="count != null">
+				`count` = #{count},
+			</if>
+			<if test="checked != null">
+				checked = #{checked},
+			</if>
+			<if test="updateTime != null">
+				updateTime = #{updateTime}
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<delete id="deleteCartById">
+		DELETE FROM carts WHERE id IN
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="selectCarts" resultType="pers.mizulk.library.pojo.Cart" resultMap="Cart">
+		<include refid="selectCart"/>
+		<where>
+			<if test="id != null">
+				c.id = #{id}
+			</if>
+			<if test="userId != null">
+				AND c.userId = #{userId}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

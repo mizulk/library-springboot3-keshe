@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.mizulk.library.mapper.UserMapper">
+
+	<update id="updateUser">
+		UPDATE users
+		<set>
+			<if test="name != null">
+				name = #{name},
+			</if>
+			<if test="password != null">
+				`password` = #{password},
+			</if>
+			<if test="sign != null">
+				sign = #{sign},
+			</if>
+			<if test="img != null">
+				img = #{img}
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<select id="selectUser" resultType="pers.mizulk.library.pojo.User">
+		SELECT id, name, sign, password, CONCAT('http://localhost:8080/images/users/', img) AS img
+		FROM users
+		<where>
+			<if test="id != null">
+				id = #{id}
+			</if>
+			<if test="name != null">
+				AND `name` LIKE CONCAT('%', #{name}, '%')
+			</if>
+			<if test="password != null">
+				AND `password` = #{password}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectRegisterUser" resultType="pers.mizulk.library.pojo.User">
+		SELECT id,
+		       name
+		FROM users
+		WHERE sign IS NULL
+		  AND img IS NULL
+	</select>
+</mapper>
