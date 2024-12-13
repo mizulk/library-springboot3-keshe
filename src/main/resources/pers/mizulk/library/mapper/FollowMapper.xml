@@ -21,7 +21,7 @@
 		       f.authorId,
 		       a.`name`,
 		       a.brief,
-		       CONCAT('http://localhost:808/images/authors/', a.img) AS img
+		       CONCAT('http://localhost:8080/images/authors/', a.img) AS img
 		FROM `follow` AS f
 			     INNER JOIN `authors` AS a
 			                ON f.authorId = a.id
